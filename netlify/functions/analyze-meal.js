@@ -1,5 +1,7 @@
+// Netlify Function — Pont sécurisé entre l'app Intensity Record et l'API Claude
+// Cette fonction sert pour : scan repas, chat coach, et chat avec photo
+
 exports.handler = async (event) => {
-  // CORS pour que ton app puisse appeler la fonction
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -12,7 +14,6 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  // Seul POST autorisé
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -22,36 +23,18 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { image, programme } = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
+    const { model, max_tokens, system, messages } = body;
 
-    if (!image) {
+    if (!messages || !Array.isArray(messages)) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Image manquante' })
+        body: JSON.stringify({ error: 'Format invalide : messages manquant' })
       };
     }
 
-    // Le prompt envoyé à Claude
-    const prompt = `Tu es Coach David, coach fitness premium d'Intensity Record. Tu analyses la photo du repas d'une cliente en programme perte de poids.
-
-${programme ? `Son programme du jour : ${programme}` : ''}
-
-Réponds UNIQUEMENT avec ce JSON exact, sans texte avant ni après :
-{
-  "aliments": ["aliment 1", "aliment 2"],
-  "calories": 420,
-  "proteines": 38,
-  "glucides": 45,
-  "lipides": 12,
-  "conformite": "parfait",
-  "message": "Un message court et motivant de Coach David, max 2 phrases, ton bienveillant mais direct"
-}
-
-Pour "conformite", utilise UNIQUEMENT : "parfait", "bon", "moyen", ou "ecart".
-Sois réaliste sur les estimations. Si la photo n'est pas un repas, mets "conformite": "ecart" et explique dans le message.`;
-
-    // Appel à l'API Claude
+    // Appel à l'API Claude avec la clé sécurisée
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -60,46 +43,32 @@ Sois réaliste sur les estimations. Si la photo n'est pas un repas, mets "confor
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 500,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: 'image/jpeg',
-                data: image
-              }
-            },
-            { type: 'text', text: prompt }
-          ]
-        }]
+        model: model || 'claude-sonnet-4-20250514',
+        max_tokens: max_tokens || 600,
+        system: system || undefined,
+        messages: messages
       })
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errText = await response.text();
-      console.error('Erreur API Anthropic:', errText);
+      console.error('Erreur API Anthropic:', data);
       return {
         statusCode: response.status,
         headers,
-        body: JSON.stringify({ error: 'Erreur analyse', details: errText })
+        body: JSON.stringify({
+          error: 'Erreur API Claude',
+          details: data
+        })
       };
     }
 
-    const data = await response.json();
-    const claudeText = data.content[0].text.trim();
-
-    // On parse le JSON renvoyé par Claude
-    const cleanText = claudeText.replace(/```json\s*|\s*```/g, '').trim();
-    const result = JSON.parse(cleanText);
-
+    // Renvoyer la réponse au format que l'app attend
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(result)
+      body: JSON.stringify(data)
     };
 
   } catch (error) {
@@ -107,7 +76,10 @@ Sois réaliste sur les estimations. Si la photo n'est pas un repas, mets "confor
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Erreur serveur', message: error.message })
+      body: JSON.stringify({
+        error: 'Erreur serveur',
+        message: error.message
+      })
     };
   }
 };
