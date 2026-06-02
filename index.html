@@ -1,40 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Intensity Record — Nutrition IA</title>
-<style>
-:root{
-  --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--bg4:#222;
-  --olive:#3D5016;--olive2:#5C7A22;--olive3:#8AAF3A;
-  --gold:#B8962E;--gold2:#F5C842;
-  --text:#F0F0F0;--muted:#888;--border:#2a2a2a;
-  --red:#E74C3C;--blue:#3498DB;--purple:#9B59B6;
-  --r:12px;--r2:20px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-
-/* PAGES */
-.page{display:none;min-height:100vh}
-.page.active{display:block}
-
-/* ═══ ONBOARDING ═══ */
-.ob-wrap{min-height:100vh;display:flex;flex-direction:column}
-.ob-hdr{padding:20px;display:flex;align-items:center;justify-content:space-between}
-.ob-logo{font-size:16px;font-weight:800;color:var(--olive3);letter-spacing:2px}
-.ob-progress{height:3px;background:var(--border);margin:0 20px;border-radius:10px;overflow:hidden}
-.ob-progress-fill{height:100%;background:linear-gradient(90deg,var(--olive),var(--olive3));border-radius:10px;transition:width 0.4s ease}
-.ob-content{flex:1;padding:30px 20px;display:flex;flex-direction:column;max-width:480px;margin:0 auto;width:100%}
-.ob-step{display:none}
-.ob-step.active{display:flex;flex-direction:column;animation:slideIn 0.3s ease}
-@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-.ob-emoji{font-size:48px;margin-bottom:16px}
-.ob-title{font-size:26px;font-weight:800;margin-bottom:8px;line-height:1.2}
-.ob-sub{font-size:14px;color:var(--muted);margin-bottom:30px;line-height:1.6}
-.ob-options{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
-.ob-option{padding:16px 20px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--bg2);cursor:pointer;font-size:15px;color:var(--text);display:flex;align-items:center;gap:12px;transition:all 0.2s;text-align:left}
+app.netlify.com.ob-option{padding:16px 20px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--bg2);cursor:pointer;font-size:15px;color:var(--text);display:flex;align-items:center;gap:12px;transition:all 0.2s;text-align:left}
 .ob-option:hover{border-color:var(--olive2);background:var(--bg3)}
 .ob-option.selected{border-color:var(--olive3);background:rgba(61,80,22,0.2)}
 .ob-option-icon{font-size:24px;flex-shrink:0}
